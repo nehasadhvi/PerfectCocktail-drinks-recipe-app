@@ -1,5 +1,25 @@
 class UI{
 
+    displayCategories() {
+        const categories = cocktail.getCategories()
+            .then(categories => {
+                const catList = categories.drinks;
+                console.log(catList);
+                const options = document.createElement('option'),
+                    searchItem = document.getElementById('search');
+                options.textContent =  '- Select -';
+                options.value = '';
+                searchItem.appendChild(options);
+
+                catList.forEach(category => {
+                    const options = document.createElement('option');
+                    options.textContent = category.strCategory;
+                    options.value = category.strCategory.split(' ').join('_');
+                    searchItem.appendChild(options);
+                });
+            });
+    }
+
     displayDrinksWithoutIngredients(drinks){
         const resultWrapper = document.querySelector('.results-wrapper');
         resultWrapper.style.display = 'block';
@@ -86,6 +106,16 @@ class UI{
             `;
         });
         return ingredientTemplate;
+    }
+
+    displaySingleRecipe(recipe){
+        const modalTitle = document.querySelector('.modal-title'),
+            modalDescription = document.querySelector('.modal-body .description-text'),
+            modalIngredients = document.querySelector('.modal-body .ingredient-list .list-group');
+
+        modalTitle.innerHTML = recipe.strDrink;
+        modalDescription.innerHTML = recipe.strInstructions;
+        modalIngredients.innerHTML = this.displayIngredients(recipe);
     }
 
 
