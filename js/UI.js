@@ -29,19 +29,20 @@ class UI{
         drinks.forEach(drink => {
             resultsDiv.innerHTML += `
             <div class="col-md-4">
-            <div class="card my-3">
-                 <button type="button" data-id="${drink.idDrink}" class="favorite-btn btn btn-outline-info">
-                 +
-                 </button>
-                 <img class="card-img-top" src="${drink.strDrinkThumb}" alt="${drink.strDrink}">
-                 <div class="card-body">
-                      <h2 class="card-title text-center">${drink.strDrink}</h2>
-                      <a data-target="#recipe" class="btn btn-success get-recipe" href="#" data-toggle="modal" data-id="${drink.idDrink}">Get Recipe</a>
-                 </div>
-            </div>
+                <div class="card my-3">
+                    <button type="button" data-id="${drink.idDrink}" class="favorite-btn btn btn-outline-info">
+                    +
+                    </button>
+                    <img class="card-img-top" src="${drink.strDrinkThumb}" alt="${drink.strDrink}">
+                    <div class="card-body">
+                        <h2 class="card-title text-center">${drink.strDrink}</h2>
+                        <a data-target="#recipe" class="btn btn-success get-recipe" href="#" data-toggle="modal" data-id="${drink.idDrink}">Get Recipe</a>
+                    </div>
+                </div>
             </div>
             `;
         });
+        this.getFavouritesFromDB();
     }
 
     displayDrinksWithIngredients(drinks) {
@@ -85,6 +86,7 @@ class UI{
                 </div>
             `;
         });
+        this.getFavouritesFromDB();
     }
 
     displayIngredients(drink){
@@ -118,7 +120,6 @@ class UI{
         modalIngredients.innerHTML = this.displayIngredients(recipe);
     }
 
-
     printMessage(message, className) {
 
         const div = document.createElement('div');
@@ -144,5 +145,44 @@ class UI{
     clearResults() {
         const result = document.getElementById('results');
         results.innerHTML = "";
+    }
+
+    getFavourites(drinks) {
+        const favoritesTable = document.querySelector('#favorites tbody');
+        drinks.forEach(drink => {
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                 <td>
+                      <img src="${drink.image}" alt="${drink.name}" width=100>
+                 </td>
+                 <td>${drink.name}</td>
+                 <td>
+                      <a href="#" data-toggle="modal" data-target="#recipe" data-id="${drink.id}" class="btn btn-success get-recipe" >
+                           View
+                      </a>
+                 </td>
+                 <td>
+                      <a href="#" data-id="${drink.id}" class="btn btn-danger remove-recipe" >
+                           Remove
+                      </a>
+                 </td>
+            `;
+
+            favoritesTable.appendChild(tr);
+       })
+    }
+
+    getFavouritesFromDB() {
+        const drinks = cocktaildb.getFromDB();
+
+        drinks.forEach((drink) => {
+            let { id } = drink;
+            let favouriteDrink = document.querySelector(`[data-id="${id}"]`);
+            if(favouriteDrink) {
+                favouriteDrink.classList.add('is-favourite');
+                favouriteDrink.textContent = '-';
+            }
+        });
     }
 }

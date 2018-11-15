@@ -1,6 +1,7 @@
 //Instantiate the classes
 const ui = new UI(),
-    cocktail = new CocktailAPI();
+    cocktail = new CocktailAPI(),
+    cocktaildb = new CocktailDB();
 
 function eventListeners() {
 
@@ -80,17 +81,59 @@ function resultsDelegation(e) {
         if(e.target.classList.contains('is-favorite')) {
             e.target.classList.remove('is-favorite');
             e.target.innerHTML = '+';
+            cocktaildb.removeFromLS(e.target.getAttribute('data-id'));
         } else {
             e.target.classList.add('is-favorite');
             e.target.innerHTML = '-';
         }
+
+        let cartBody = e.target.parentElement;
+
+        let drinksInfo = {
+            id: e.target.dataset.id,
+            name: cartBody.querySelector('.card-title').textContent,
+            image: cartBody.querySelector('.card-img-top').src
+        };
+
+        cocktaildb.saveIntoDB(drinksInfo);
     }
 
 }
 
 function documentReady() {
+
+    ui.getFavouritesFromDB();
+
     const searchCategory = document.querySelector('.search-category');
     if(searchCategory){
         ui.displayCategories();
+    }
+
+    //Load contents of Favourites page
+    const favouriteTable = document.getElementById('favorites');
+
+    if(favouriteTable) {
+        const drinks = cocktaildb.getFromDB();
+        ui.getFavourites(drinks);
+
+        favouriteTable.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            if(e.target.classList.contains('get-recipe')) {
+                cocktail.getSingleRecipe(e.target.getAttribute('data-id'))
+                    .then(recipe => {
+                        ui.displaySingleRecipe(recipe.drinks[0]);
+                    })
+            }
+
+            if(e.target.classList.contains('remove-recipe')) {
+                //Remove from DOM
+                e.target.parentElement.parentElement.remove();
+
+                //Remove from Local Storage
+                cocktaildb.removeFromLS(e.target.dataset.id);
+            }
+        });
+        
     }
 }
